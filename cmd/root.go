@@ -14,6 +14,7 @@ import (
 	"github.com/datreeio/datree/pkg/fileReader"
 	"github.com/datreeio/datree/pkg/localConfig"
 	"github.com/datreeio/datree/pkg/printer"
+	"github.com/datreeio/datree/pkg/schema-validator"
 	"github.com/spf13/cobra"
 )
 
@@ -60,6 +61,10 @@ func init() {
 	}))
 
 	rootCmd.AddCommand(completion.New())
+
+	rootCmd.AddCommand(schema_validator.New(&schema_validator.SchemaValidatorCommandContext{
+		SchemaValidator:   "{title: SCHEMA}",
+	}))
 }
 
 func Execute() error {
