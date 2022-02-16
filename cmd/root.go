@@ -62,9 +62,7 @@ func init() {
 
 	rootCmd.AddCommand(completion.New())
 
-	rootCmd.AddCommand(schema_validator.New(&schema_validator.SchemaValidatorCommandContext{
-		SchemaValidator:   "{title: SCHEMA}",
-	}))
+	rootCmd.AddCommand(schema_validator.New(&schema_validator.SchemaValidatorCommandContext{}))
 }
 
 func Execute() error {

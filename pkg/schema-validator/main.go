@@ -6,7 +6,6 @@ import (
 )
 
 type SchemaValidatorCommandContext struct {
-	SchemaValidator string
 }
 
 func New(ctx *SchemaValidatorCommandContext) *cobra.Command {
@@ -14,14 +13,25 @@ func New(ctx *SchemaValidatorCommandContext) *cobra.Command {
 		Use:   "schema-validator",
 		Short: "Execute static analysis for given <pattern>",
 		Long:	"Execute static analysis for given <pattern>. Input should be glob or `-` for stdin",
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				errMessage := "Requires at least 1 arg\n"
+				return fmt.Errorf(errMessage)
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error{
-			schemaValidator(ctx)
+			var i = 0
+			for i < len(args) {
+				schemaValidator(args[i])
+				i++
+			}
 			return nil
 		},
 	}
 	return benCommand
 }
 
-func schemaValidator(ctx *SchemaValidatorCommandContext) {
-	fmt.Println("ben test OUTSIDE", ctx)
+func schemaValidator(arg string) {
+	fmt.Println("schemaValidator", arg)
 }
