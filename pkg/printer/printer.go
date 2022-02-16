@@ -2,6 +2,7 @@ package printer
 
 import (
 	"fmt"
+	"github.com/xeipuuv/gojsonschema"
 	"io"
 
 	"github.com/fatih/color"
@@ -46,6 +47,7 @@ type Warning struct {
 	InvalidYamlInfo InvalidYamlInfo
 	InvalidK8sInfo  InvalidK8sInfo
 }
+type JSONSchemaValidatorResult = gojsonschema.Result
 
 func (p *Printer) SetTheme(theme *Theme) {
 	p.Theme = theme
@@ -79,8 +81,26 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 	fmt.Fprintln(out)
 }
 
-func (p Printer) PrintJsonSchemaResults(err error) error {
-	return err
+func (p *Printer) PrintJsonSchemaResults(result *JSONSchemaValidatorResult, error error)  {
+	if result == nil {
+		p.printInColor("The document is not valid\n", p.Theme.Colors.RedBold)
+		return
+	}
+		if result.Errors() != nil {
+		p.printInColor("The document is not valid, see errors:\n", p.Theme.Colors.RedBold)
+		var errorsAsString = ""
+		for _, desc := range result.Errors() {
+			fmt.Printf("- %s\n", desc)
+			errorsAsString = errorsAsString + desc.String() + "\n"
+		}
+		p.printInColor(errorsAsString, p.Theme.Colors.RedBold)
+		return
+	}
+	if error == nil {
+		p.printInColor("The File Is Valid\n", p.Theme.Colors.Green)
+	} else {
+		p.printInColor("The File Is Invalid\n", p.Theme.Colors.RedBold)
+	}
 }
 
 func (p *Printer) PrintWarnings(warnings []Warning) {

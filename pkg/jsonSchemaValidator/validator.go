@@ -1,10 +1,8 @@
 package jsonSchemaValidator
 
 import (
-	"fmt"
 	"github.com/xeipuuv/gojsonschema"
 )
-
 
 type JsonSchemaValidator struct {
 
@@ -14,23 +12,22 @@ func New() *JsonSchemaValidator {
 	return &JsonSchemaValidator{}
 }
 
-func (jsv *JsonSchemaValidator) Validate(jsonSchema string, json string) error {
+type Result = gojsonschema.Result
+
+func (jsv *JsonSchemaValidator) Validate(jsonSchema string, json string) (*Result, error) {
 	schemaLoader := gojsonschema.NewStringLoader(jsonSchema)
 	documentLoader := gojsonschema.NewStringLoader(json)
 
 	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if err != nil {
-		return err
+		return result, err
 	}
 
 	if result.Valid() {
-		fmt.Printf("The document is valid\n")
+		return result, err
 	} else {
-		fmt.Printf("The document is not valid. see errors :\n")
-		for _, desc := range result.Errors() {
-			fmt.Printf("- %s\n", desc)
-		}
+		return result, err
 	}
 
-	return fmt.Errorf("validation always fails. duh")
+	return result, err
 }

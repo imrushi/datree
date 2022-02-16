@@ -4,14 +4,18 @@ import (
 	"fmt"
 	"github.com/datreeio/datree/pkg/extractor"
 	"github.com/spf13/cobra"
+	"github.com/xeipuuv/gojsonschema"
+
 )
 
+type Result = gojsonschema.Result
+
 type JsonSchemaValidator interface {
-	Validate(jsonSchema string, json string) error
+	Validate(jsonSchema string, json string) (*Result, error)
 }
 
 type JsonSchemaValidationPrinter interface {
-	PrintJsonSchemaResults(results error) error
+	PrintJsonSchemaResults(result *Result, error error)
 }
 
 type SchemaValidatorCommandContext struct {
@@ -20,13 +24,13 @@ type SchemaValidatorCommandContext struct {
 }
 
 func New(ctx *SchemaValidatorCommandContext) *cobra.Command {
-	benCommand := &cobra.Command{
+	schemaValidator := &cobra.Command{
 		Use:   "schema-validator",
-		Short: "Execute static analysis for given <pattern>",
-		Long:  "Execute static analysis for given <pattern>. Input should be glob or `-` for stdin",
+		Short: "Execute schema validation to yaml files for given json",
+		Long:  "Execute schema validation to yaml files for given json. Input should be glob or 1 yaml file and 1 json file",
 		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) < 1 {
-				errMessage := "Requires at least 1 arg\n"
+			if len(args) != 2{
+				errMessage := "Requires 2 args\n"
 				return fmt.Errorf(errMessage)
 			}
 			return nil
@@ -36,9 +40,8 @@ func New(ctx *SchemaValidatorCommandContext) *cobra.Command {
 			jsonPath, _ := extractor.ReadFileContent(args[0])
 			json, _ := extractor.ReadFileContent(args[1])
 
-			err := ctx.JsonSchemaValidator.Validate(jsonPath, json)
-
-			err = ctx.Printer.PrintJsonSchemaResults(err)
+			result , err := ctx.JsonSchemaValidator.Validate(jsonPath, json)
+			ctx.Printer.PrintJsonSchemaResults(result ,err)
 
 			if err != nil {
 				return err
@@ -47,7 +50,7 @@ func New(ctx *SchemaValidatorCommandContext) *cobra.Command {
 			return nil
 		},
 	}
-	return benCommand
+	return schemaValidator
 }
 
 func schemaValidator(arg string) {
