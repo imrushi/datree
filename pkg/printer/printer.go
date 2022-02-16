@@ -79,6 +79,10 @@ func (p *Printer) printK8sValidationWarning(warning Warning) {
 	fmt.Fprintln(out)
 }
 
+func (p Printer) PrintJsonSchemaResults(err error) error {
+	return err
+}
+
 func (p *Printer) PrintWarnings(warnings []Warning) {
 	for _, warning := range warnings {
 		p.printInColor(warning.Title, p.Theme.Colors.Yellow)
