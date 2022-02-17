@@ -1,6 +1,7 @@
 package jsonSchemaValidator
 
 import (
+	"github.com/ghodss/yaml"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -14,9 +15,14 @@ func New() *JsonSchemaValidator {
 
 type Result = gojsonschema.Result
 
-func (jsv *JsonSchemaValidator) Validate(jsonSchema string, json string) (*Result, error) {
-	schemaLoader := gojsonschema.NewStringLoader(jsonSchema)
-	documentLoader := gojsonschema.NewStringLoader(json)
+func (jsv *JsonSchemaValidator) Validate(schemaContent string, yamlContent string) (*Result, error) {
+
+	jsonSchema, _ := yaml.YAMLToJSON([]byte(schemaContent))
+
+	json, _ := yaml.YAMLToJSON([]byte(yamlContent))
+
+	schemaLoader := gojsonschema.NewStringLoader(string(jsonSchema))
+	documentLoader := gojsonschema.NewStringLoader(string(json))
 
 	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if err != nil {

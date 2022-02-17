@@ -36,11 +36,26 @@ func New(ctx *SchemaValidatorCommandContext) *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			schemaPath := args[0]
+			yamlPath := args[1]
 
-			jsonPath, _ := extractor.ReadFileContent(args[0])
-			json, _ := extractor.ReadFileContent(args[1])
+			_, _, invalidSchemaFile := extractor.ExtractConfigurationsFromYamlFile(schemaPath)
 
-			result , err := ctx.JsonSchemaValidator.Validate(jsonPath, json)
+			if invalidSchemaFile != nil {
+				return invalidSchemaFile.ValidationErrors[0]
+			}
+
+			_, _, invalidYamlFile := extractor.ExtractConfigurationsFromYamlFile(yamlPath)
+
+			if invalidYamlFile != nil {
+				return invalidYamlFile.ValidationErrors[0]
+			}
+
+			schemaContent, _ := extractor.ReadFileContent(schemaPath)
+
+			yamlContent, _ := extractor.ReadFileContent(yamlPath)
+
+			result , err := ctx.JsonSchemaValidator.Validate(schemaContent, yamlContent)
 			ctx.Printer.PrintJsonSchemaResults(result ,err)
 
 			if err != nil {
